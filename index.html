@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>D3 graph</title>
+<link href="css/style.css" rel="stylesheet" />
+
+
+</head>
+<body>
+  <h1 style="text-align:center">India Cencus</h1>
+  <div class="wrapper">
+  <h2>Age wise literate population </h2>
+<table>
+
+  <tr><td width="405px">
+      <div id ="agepopulationDiv" >
+        <table id="agepopulationTable">
+        <th>Age </th><th>Population</th><th></th>
+        </table>
+      </div>
+</td><td>
+        <div id="population">
+        </div>
+</td></tr>
+</table>
+<br/>
+<hr/>
+<h2>Education category wise population</h2>
+  <table>
+<tr><td width="405px">
+      <div id ="catpopulationDiv">
+      <table id="catpopulationTable">
+      <th>Education Category </th><th>Population</th><th></th>
+      </table>
+    </div>
+</td><td>
+    <div id="education">
+      <svg class="pie" width="920" height="300"></svg>
+    </div>
+</td></tr></table>
+  </div>
+<script src="js/d3.min.js"></script>
+<script src="js/d3.js"></script>
+<script src="js/jquery-1.8.0.min.js"></script>
+<script src="js/barGraph.js"></script>
+<script src="js/pieChart.js"></script>
+<script>
+
+$( document ).ready(function() {
+
+var agePopulationInputJSON=[{"ageGroup": "7+", "population": 45637146},{"ageGroup": "8","population": 58022842  },  {    "ageGroup": "9",    "population": 53131142  },  {    "ageGroup": "10",    "population": 68861406  },  {    "ageGroup": "11",    "population": 57613926  },  {    "ageGroup": "12",    "population": 64697632  },  {    "ageGroup": "13",    "population": 56774948  },  {    "ageGroup": "14",    "population": 58342438  },  {    "ageGroup": "15",    "population": 58650396 },  {    "ageGroup": "16",    "population": 55372642  },  {    "ageGroup": "17",    "population": 47773702  },  {    "ageGroup": "18",    "population": 60437750  },  {    "ageGroup": "19",    "population": 45242416  },  {    "ageGroup": "0-6",    "population": 0  },  {    "ageGroup": "20-24",    "population": 228256000  },  {    "ageGroup": "25-29",    "population": 191483696  },  {    "ageGroup": "30-34",    "population": 154073038  },  {    "ageGroup": "35-39",    "population": 136486916  },  {    "ageGroup": "40-44",    "population": 107417046  },  {    "ageGroup": "45-49",    "population": 86715832  },  {    "ageGroup": "50-54",    "population": 65106950  },  {    "ageGroup": "55-59",    "population": 49114198  },  {    "ageGroup": "60-64",    "population": 40321684  },  {    "ageGroup": "65-69",    "population": 26386922  },  {    "ageGroup": "70-74",    "population": 17121410},{"ageGroup": "75-79","population": 8526208},{"ageGroup": "80+","population": 9840378}];
+//console.log("agePopulationInputJSON=>"+JSON.stringify(agePopulationInputJSON));
+drawGraphAndTableForAgeWisePopultion(agePopulationInputJSON);
+
+var educationCategoryWiseJSON=[{"eduCat": "Literate without educational level","catPopulation": 171670752  },  {    "eduCat": "Below Primary",    "catPopulation": 751691352  },  {    "eduCat": "Primary",    "catPopulation": 921147160  },  {    "eduCat": "Middle level",    "catPopulation": 660343812  },  {    "eduCat": "Matric/Secondary", "catPopulation": 495879992  },  {    "eduCat": "Higher secondary/Intermediate/Pre-University/Senior secondary",    "catPopulation": 360639156  },  {    "eduCat": "Non-technical diploma or certificate not equal to degree",    "catPopulation": 4651712  },  {    "eduCat": "Technical diploma or certificate not equal to degree",    "catPopulation": 33160332  },  {    "eduCat": "Graduate & above",    "catPopulation": 302381308  },  {    "eduCat": "Unclassified",    "catPopulation": 15091552  }];
+drawGraphAndTableForEduCatWisePopultion(educationCategoryWiseJSON);
+
+$('.delAge').live('click',function(){
+  console.log($(this).parent().parent().remove());
+  var ageGroupToBeDeleted=$(this).attr("id");
+console.log("ageGroupToBeDeleted="+ageGroupToBeDeleted);
+agePopulationInputJSON = agePopulationInputJSON.filter(function (el) {
+                      return el.ageGroup !== ageGroupToBeDeleted;
+                 });
+  console.log("agePopulationInputJSON after deleting key==>"+JSON.stringify(agePopulationInputJSON));
+
+  $( "#population" ).empty();
+  drawBarGraph(agePopulationInputJSON);
+});
+
+$('.delEdu').live('click',function(){
+  console.log($(this).parent().parent().remove());
+  var eduCatToBeDeleted=$(this).attr("id");
+console.log("eduCatToBeDeleted="+eduCatToBeDeleted);
+educationCategoryWiseJSON = educationCategoryWiseJSON.filter(function (el) {
+                      return el.eduCat !== eduCatToBeDeleted;
+                 });
+  console.log("educationCategoryWiseJSON after deleting key==>"+JSON.stringify(educationCategoryWiseJSON));
+
+  $( ".pie" ).empty();
+  drawPieChart(educationCategoryWiseJSON);
+});
+
+
+});
+
+function drawGraphAndTableForAgeWisePopultion(agePopulationInputJSON){
+drawBarGraph(agePopulationInputJSON);
+drawAgePopulationTable(agePopulationInputJSON);
+}
+
+function drawGraphAndTableForEduCatWisePopultion(educationCategoryWiseJSON){
+drawPieChart(educationCategoryWiseJSON);
+drawEduCatPopulationTable(educationCategoryWiseJSON);
+}
+
+function drawAgePopulationTable(agePopulationInputJSON){
+  console.log("drawAgePopulationTable agePopulationInputJSON=>"+JSON.stringify(agePopulationInputJSON));
+
+data=agePopulationInputJSON;
+  var items = [];
+
+  $.each( data, function( key, val ) {
+    items.push( "<tr id='" + val.ageGroup + "'><td>" + val.ageGroup + "</td><td>" + val.population + "</td><td><button id='"+val.ageGroup+"' type='button' class='delAge'>Delete</button></td></tr>" );
+  });
+
+  $( "<table>", {
+    "id": "agepopulationTable",
+    html: items.join( "" )
+  }).appendTo( "#agepopulationDiv" );
+
+}
+
+function drawEduCatPopulationTable(educationCategoryWiseJSON){
+  console.log("drawEduCatPopulationTable educationCategoryWiseJSON=>"+JSON.stringify(educationCategoryWiseJSON));
+
+data=educationCategoryWiseJSON;
+  var items = [];
+
+  $.each( data, function( key, val ) {
+    items.push( "<tr id='" + val.eduCat + "'><td>" + val.eduCat + "</td><td>" + val.catPopulation + "</td><td><button id='"+val.eduCat+"' type='button' class='delEdu'>Delete</button></td></tr>" );
+  });
+
+  $( "<table>", {
+    "id": "catpopulationTable",
+    html: items.join( "" )
+  }).appendTo( "#catpopulationDiv" );
+
+}
+
+
+</script>
+
+</body>
+
+</html>
